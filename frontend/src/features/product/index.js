@@ -1,6 +1,7 @@
 // Hooks
 export { useProducts } from './hooks/useProducts';
 export { useCategories } from './hooks/useCategories';
+export { useCategoryManagement } from './hooks/useCategoryManagement';
 export { useProductDetail } from './hooks/useProductDetail';
 
 // Utils
@@ -15,6 +16,7 @@ export { categories } from './data/categories';
 export { default as ProductCard } from './components/ProductCard';
 export { default as ProductGrid } from './components/ProductGrid';
 export { default as CategorySidebar } from './components/CategorySidebar';
+export { default as CategoryStats } from './components/CategoryStats';
 
 // Pages
 export { default as ProductDetail } from './pages/ProductDetail'; 

@@ -53,8 +53,8 @@ class CategoryService {
       
       const { page = 1, limit = 10 } = options;
       
-      // Build query
-      const query = { isActive: true };
+      // Build query - exclude deleted categories
+      const query = { isDeleted: { $ne: true } };
       
       if (filters.keyword) {
         query.$or = [
@@ -65,10 +65,6 @@ class CategoryService {
       
       if (filters.parentCategoryId) {
         query.parentCategoryId = filters.parentCategoryId;
-      }
-      
-      if (filters.isActive !== undefined) {
-        query.isActive = filters.isActive === 'true';
       }
 
       // Execute query with pagination
@@ -195,7 +191,7 @@ class CategoryService {
     try {
       this._checkDBConnection();
       
-      const categories = await Category.find({ isActive: true })
+      const categories = await Category.find({ isDeleted: { $ne: true } })
         .populate('parentCategoryId', 'name')
         .sort({ name: 1 });
 
@@ -230,7 +226,7 @@ class CategoryService {
       const { page = 1, limit = 10 } = options;
       
       const result = await paginate(Category, 
-        { parentCategoryId: categoryId, isActive: true },
+        { parentCategoryId: categoryId, isDeleted: { $ne: true } },
         {
           page,
           limit,
@@ -253,7 +249,7 @@ class CategoryService {
     try {
       this._checkDBConnection();
       
-      const query = { isActive: true };
+      const query = { isDeleted: { $ne: true } };
       
       if (filters.keyword) {
         query.$or = [
@@ -264,10 +260,6 @@ class CategoryService {
       
       if (filters.parentCategoryId) {
         query.parentCategoryId = filters.parentCategoryId;
-      }
-      
-      if (filters.isActive !== undefined) {
-        query.isActive = filters.isActive === 'true';
       }
 
       const categories = await Category.find(query)

@@ -1,21 +1,41 @@
 import { useState, useEffect } from 'react';
-import { products } from '../data/products';
+import { getProductById } from '../services/productApi';
+import { mapApiProductToProduct } from '../utils/productMapper';
 
 export const useProductDetail = (productId) => {
   const [product, setProduct] = useState(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Tìm sản phẩm theo ID
-    const foundProduct = products.find(p => p.id === parseInt(productId));
-    setProduct(foundProduct);
-    
-    // Reset states khi thay đổi sản phẩm
-    setSelectedImage(0);
-    setQuantity(1);
-    setSelectedColor(0);
+    const fetchProduct = async () => {
+      if (!productId) return;
+      
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const fetchedProduct = await getProductById(productId);
+        const mappedProduct = mapApiProductToProduct(fetchedProduct);
+        setProduct(mappedProduct);
+        
+        // Reset states khi thay đổi sản phẩm
+        setSelectedImage(0);
+        setQuantity(1);
+        setSelectedColor(0);
+      } catch (err) {
+        console.error('Error fetching product:', err);
+        setError(err.message);
+        setProduct(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
   }, [productId]);
 
   const handleImageChange = (index) => {
@@ -35,6 +55,8 @@ export const useProductDetail = (productId) => {
     selectedImage,
     quantity,
     selectedColor,
+    loading,
+    error,
     handleImageChange,
     handleQuantityChange,
     handleColorChange

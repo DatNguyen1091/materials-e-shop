@@ -14,8 +14,8 @@ const createCategory = async (req, res, next) => {
 // Get all categories with pagination and filters
 const getCategories = async (req, res, next) => {
   try {
-    const { page, limit, keyword, parentCategoryId, isActive } = req.query;
-    const filters = { keyword, parentCategoryId, isActive };
+    const { page, limit, keyword, parentCategoryId } = req.query;
+    const filters = { keyword, parentCategoryId };
     const options = { page, limit };
     
     const result = await categoryService.getCategories(filters, options);
@@ -82,8 +82,8 @@ const getSubcategories = async (req, res, next) => {
 // Search categories
 const searchCategories = async (req, res, next) => {
   try {
-    const { keyword, parentCategoryId, isActive } = req.query;
-    const filters = { keyword, parentCategoryId, isActive };
+    const { keyword, parentCategoryId } = req.query;
+    const filters = { keyword, parentCategoryId };
     
     const categories = await categoryService.searchCategories(filters);
     return successResponse(res, categories, 'Search completed successfully');

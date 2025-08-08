@@ -1,135 +1,188 @@
-# Product Feature
+# Category API Integration
 
-Cấu trúc feature-based cho quản lý sản phẩm và danh mục.
+## Tổng quan
 
-## 📁 Cấu trúc thư mục
+Frontend đã được tích hợp với Category API từ backend để thay thế dữ liệu mock. Tất cả các chức năng category đều sử dụng API thực từ database.
 
-```
-src/features/product/
-├── components/          # UI Components
-│   ├── ProductCard.jsx      # Card hiển thị sản phẩm
-│   ├── ProductGrid.jsx      # Grid hiển thị danh sách sản phẩm
-│   ├── CategorySidebar.jsx  # Sidebar lọc theo danh mục
-│   ├── ProductGallery.jsx   # Gallery ảnh sản phẩm (TODO)
-│   ├── ProductSort.jsx      # Component sắp xếp (TODO)
-│   └── ProductFilter.jsx    # Component lọc nâng cao (TODO)
-├── data/               # Data sources
-│   ├── products.js         # Mock data sản phẩm
-│   └── categories.js       # Mock data danh mục
-├── hooks/              # Custom hooks
-│   ├── useProducts.js      # Hook quản lý sản phẩm
-│   ├── useCategories.js    # Hook quản lý danh mục
-│   └── useProductDetail.js # Hook chi tiết sản phẩm
-├── pages/              # Page components
-│   ├── ProductDetail.jsx   # Trang chi tiết sản phẩm
-│   ├── ProductListPage.jsx # Trang danh sách sản phẩm (TODO)
-│   └── CategoryPage.jsx    # Trang danh mục (TODO)
-├── services/           # API services (TODO)
-├── utils/              # Utility functions
-│   ├── priceUtils.js       # Xử lý giá cả
-│   └── productUtils.js     # Xử lý sản phẩm
-└── index.js            # Barrel exports
-```
+## API Endpoints
 
-## 🎯 Tính năng
-
-### ✅ Đã hoàn thành
-- **Product Management**: Hiển thị danh sách sản phẩm với phân trang
-- **Category Filtering**: Lọc sản phẩm theo danh mục
-- **Product Detail**: Trang chi tiết sản phẩm với gallery ảnh
-- **Price Formatting**: Định dạng giá tiền VND
-- **Discount Calculation**: Tính toán giá khuyến mãi
-- **Responsive Design**: Thiết kế responsive với Tailwind CSS
-
-### 🚧 Đang phát triển
-- **Product Search**: Tìm kiếm sản phẩm
-- **Advanced Filtering**: Lọc theo giá, đánh giá, thương hiệu
-- **Product Sorting**: Sắp xếp theo giá, tên, đánh giá
-- **API Integration**: Kết nối với backend API
-- **State Management**: Quản lý state toàn cục
-
-## 🔧 Sử dụng
-
-### Import components
+### 1. Get Categories Tree
 ```javascript
-import { ProductCard, ProductGrid, CategorySidebar } from '../features/product';
+GET /api/category/tree
+```
+Trả về cấu trúc cây danh mục với parent và children.
+
+### 2. Get All Categories
+```javascript
+GET /api/category?page=1&limit=10&keyword=search&parentCategoryId=id
+```
+Trả về danh sách categories với pagination và filters.
+
+### 3. Get Category by ID
+```javascript
+GET /api/category/:id
+```
+Trả về thông tin chi tiết của một category.
+
+### 4. Search Categories
+```javascript
+GET /api/category/search?keyword=search&parentCategoryId=id
+```
+Tìm kiếm categories theo keyword.
+
+### 5. Get Subcategories
+```javascript
+GET /api/category/:categoryId/subcategories?page=1&limit=10
+```
+Trả về subcategories của một category.
+
+### 6. Get Category Statistics
+```javascript
+GET /api/category/stats
+```
+Trả về thống kê về categories.
+
+## Hooks
+
+### useCategories
+Hook cơ bản để quản lý categories trong sidebar:
+```javascript
+const {
+  categories,
+  loading,
+  error,
+  expandedCategories,
+  selectedCategory,
+  toggleCategory,
+  handleCategorySelect,
+  clearCategoryFilter
+} = useCategories();
 ```
 
-### Import hooks
+### useCategoryManagement
+Hook nâng cao cho quản lý categories:
 ```javascript
-import { useProducts, useCategories, useProductDetail } from '../features/product';
+const {
+  categories,
+  loading,
+  error,
+  pagination,
+  fetchCategories,
+  searchCategories,
+  getCategoryById,
+  getSubcategories,
+  getCategoryStats
+} = useCategoryManagement();
 ```
 
-### Import utils
+## Components
+
+### CategorySidebar
+Component hiển thị sidebar danh mục với:
+- Loading state
+- Error handling
+- Expandable categories
+- Category selection
+
+### CategoryStats
+Component hiển thị thống kê danh mục:
+- Tổng số categories
+- Số categories cha/con
+- Thống kê sản phẩm theo category
+
+## Cách sử dụng
+
+### 1. Import hooks
 ```javascript
-import { formatPrice, searchProducts } from '../features/product';
+import { useCategories, useCategoryManagement } from '../features/product';
 ```
 
-## 📊 Data Structure
-
-### Product
+### 2. Sử dụng trong component
 ```javascript
-{
-  id: number,
-  name: string,
-  price: number,
-  image: string,
-  category: string,
-  rating: number,
-  discount: number,
-  description: string,
-  specs: object,
-  colors: string[],
-  images: string[]
+function MyComponent() {
+  const { categories, loading, error } = useCategories();
+  
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error}</div>;
+  
+  return (
+    <div>
+      {categories.map(category => (
+        <div key={category._id}>{category.name}</div>
+      ))}
+    </div>
+  );
 }
 ```
 
-### Category
+### 3. Sử dụng CategorySidebar
 ```javascript
-{
-  id: number,
-  name: string,
-  icon: string,
-  children: Category[]
+import { CategorySidebar } from '../features/product';
+
+function ProductPage() {
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  
+  return (
+    <div>
+      <CategorySidebar 
+        selectedCategory={selectedCategory}
+        onCategorySelect={setSelectedCategory}
+      />
+    </div>
+  );
 }
 ```
 
-## 🎨 Styling
+## Cấu trúc dữ liệu
 
-Sử dụng Tailwind CSS với custom colors:
-- `primary`: #1e40af (Blue)
-- `secondary`: #f43f5e (Rose)
+### Category Object
+```javascript
+{
+  _id: "string",
+  name: "string",
+  description: "string",
+  icon: "string",
+  parentCategoryId: "string" | null,
+  isDeleted: boolean,
+  createdAt: "date",
+  updatedAt: "date",
+  children: [Category] // Chỉ có trong tree response
+}
+```
 
-## 🔄 State Management
+### Pagination Response
+```javascript
+{
+  data: [Category],
+  pagination: {
+    page: number,
+    limit: number,
+    total: number,
+    totalPages: number,
+    hasNextPage: boolean,
+    hasPrevPage: boolean
+  }
+}
+```
 
-### Local State
-- Sử dụng React hooks (useState, useEffect, useMemo)
-- State được quản lý trong từng component
+## Error Handling
 
-### Future Plans
-- Tích hợp Redux Toolkit hoặc Zustand
-- Global state cho cart, user preferences
-- Caching với React Query
+Tất cả API calls đều có error handling:
+- Network errors
+- HTTP status errors
+- Data validation errors
 
-## 🚀 Performance
+## Loading States
 
-- **Lazy Loading**: Components được load khi cần
-- **Memoization**: useMemo cho expensive calculations
-- **Pagination**: Chỉ load 20 sản phẩm mỗi trang
-- **Image Optimization**: Placeholder images cho development
+Các components đều có loading states:
+- Skeleton loading cho CategorySidebar
+- Spinner cho CategoryStats
+- Disabled states cho buttons
 
-## 🧪 Testing
+## Migration từ Mock Data
 
-### TODO
-- Unit tests cho hooks
-- Component tests với React Testing Library
-- Integration tests cho product flow
-- E2E tests với Playwright
-
-## 📈 Scalability
-
-Cấu trúc được thiết kế để dễ dàng mở rộng:
-- **Feature-based**: Mỗi feature độc lập
-- **Modular**: Components có thể tái sử dụng
-- **Extensible**: Dễ dàng thêm tính năng mới
-- **Maintainable**: Code được tổ chức rõ ràng 
+Đã hoàn thành migration từ mock data sang API thực:
+- ✅ useCategories hook sử dụng API
+- ✅ CategorySidebar component cập nhật
+- ✅ Error handling và loading states
+- ✅ Cấu trúc dữ liệu tương thích 

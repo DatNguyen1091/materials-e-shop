@@ -10,11 +10,45 @@ export default function ProductDetail() {
     selectedImage,
     quantity,
     selectedColor,
+    loading,
+    error,
     handleImageChange,
     handleQuantityChange,
     handleColorChange
   } = useProductDetail(id);
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-gray-600">Đang tải sản phẩm...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-6xl mb-4">⚠️</div>
+        <h3 className="text-xl font-semibold text-gray-800 mb-2">
+          Có lỗi xảy ra
+        </h3>
+        <p className="text-gray-600 mb-4">{error}</p>
+        <Link 
+          to="/" 
+          className="inline-block bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors"
+        >
+          Về trang chủ
+        </Link>
+      </div>
+    );
+  }
+
+  // Product not found
   if (!product) {
     return (
       <div className="text-center py-12">
@@ -99,13 +133,13 @@ export default function ProductDetail() {
 
           {/* Price */}
           <div className="mb-6">
-            {product.discount > 0 ? (
+            {product.discount > 0 && product.originalPrice ? (
               <div className="flex items-center gap-4">
                 <span className="text-3xl font-bold text-red-600">
-                  {formatPrice(calculateDiscountedPrice(product.price, product.discount))}
+                  {formatPrice(product.price)}
                 </span>
                 <span className="text-xl text-gray-500 line-through">
-                  {formatPrice(product.price)}
+                  {formatPrice(product.originalPrice)}
                 </span>
                 <span className="bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold">
                   -{product.discount}%

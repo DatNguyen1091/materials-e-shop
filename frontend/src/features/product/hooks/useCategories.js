@@ -1,9 +1,32 @@
-import { useState } from 'react';
-import { categories } from '../data/categories';
+import { useState, useEffect } from 'react';
+import { categoryApi } from '../../../api/categoryApi';
 
 export const useCategories = () => {
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [expandedCategories, setExpandedCategories] = useState(new Set());
   const [selectedCategory, setSelectedCategory] = useState(null);
+
+  // Fetch categories from API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await categoryApi.getCategoriesTree();
+        setCategories(response.data || []);
+      } catch (err) {
+        console.error('Error fetching categories:', err);
+        setError(err.message);
+        setCategories([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const toggleCategory = (categoryId) => {
     const newExpanded = new Set(expandedCategories);
@@ -25,6 +48,8 @@ export const useCategories = () => {
 
   return {
     categories,
+    loading,
+    error,
     expandedCategories,
     selectedCategory,
     toggleCategory,

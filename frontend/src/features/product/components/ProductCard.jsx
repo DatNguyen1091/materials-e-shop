@@ -52,13 +52,13 @@ export default function ProductCard({ product }) {
 
         {/* Price */}
         <div className="flex items-center gap-2 mb-3">
-          {product.discount > 0 ? (
+          {product.discount > 0 && product.originalPrice ? (
             <>
               <span className="text-lg font-bold text-red-600">
-                {formatPrice(calculateDiscountedPrice(product.price, product.discount))}
+                {formatPrice(product.price)}
               </span>
               <span className="text-sm text-gray-500 line-through">
-                {formatPrice(product.price)}
+                {formatPrice(product.originalPrice)}
               </span>
             </>
           ) : (
